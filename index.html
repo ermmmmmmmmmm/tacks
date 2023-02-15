@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <style>
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            color: #444444;
+            background-color: #eee;
+        }
+
+        .part {
+            background-color: #fff;
+            padding: 24px;
+            margin-top: 24px;
+            border-radius: 15px;
+            row-gap: 10px;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .working > p {
+            margin: 0
+        }
+
+        .field_wrapper {
+            display: grid;
+            grid-auto-flow: row;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            grid-template-rows: 50px 50px;
+            border: 1px solid;
+            padding: 10px;
+        }
+
+        .field_wrapper > div {
+            padding: 10px;
+        }
+
+        .content {
+            margin: 0 auto;
+            max-width: 1280px;
+            width: 90%;
+        }
+
+        @media only screen and (min-width: 601px) {
+            .content {
+                width: 85%;
+            }
+        }
+
+        @media only screen and (min-width: 993px) {
+            .content {
+                width: 70%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    
+    <div class="content">
+        <div class="part">
+            <h3 class="center">Part 1: Taxable Income = Assessable Income - Deductions</h3>
+            <p class="center"><i>Assessable Income and Deductions are truncated to whole dollars.</i></p>
+            <h5>1.1 Adding Assessable Income</h5>
+            <div class="field_wrapper assessable-income-wrapper">
+                <div>
+                    <input type="text" class="input_income" name="field_name[]" id="input_income" value="0" />
+                    <a href="javascript:void(0);" class="add_button" title="Add field">+</a>
+                </div>
+            </div>
+            <button id="add_taxable_income">Sum Assessable Income</button>
+            <h5>1.2 Adding Deductions</h5>
+            <div class="field_wrapper deductions-wrapper">
+                <div>
+                    <input type="text" class="input_deductions" name="field_name[]" id="input_income" value="0" />
+                    <a href="javascript:void(0);" class="add_button" title="Add field">+</a>
+                </div>
+            </div>
+            <button id="add_deductions">Sum Deductions</button>
+            <h5>1.3 Taxable Income</h5>
+            <div class="field_wrapper">
+                <div>
+                    <input type="text" class="input_sum_income" name="field_name[]" id="input_income" value="0" />
+                </div>
+                <div>
+                    <input type="text" class="input_sum_deductions" name="field_name[]" id="input_income" value="0" />
+                </div>
+            </div>
+            <button id="find_taxable_income">Find Taxable Income</button>
+        </div>
+        
+        <div class="part">
+            <h3 class="center">Part 2: Basic Income Tax Liability = Taxable Income * Tax Rates</h3>
+            <p class="center"><i>No truncation/rounding at this stage.</i></p>
+            <h5>2.1 Australian or Foreign</h5>
+            <div class="field_wrapper">
+                <div>
+                    <label>Taxable Income:</label><br><input class="input_taxable_income" value="0" />
+                </div>
+                <div>
+                    <label for="residency">Australian or Foreign:</label>
+                    <br>
+                    <select name="residency" id="residency">
+                      <option value="australian">Australian</option>
+                      <option value="foreign">Foreign</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Basic Income Tax Liability:</label><br><input class="input_bilt_1" value="0" />
+                </div>
+            </div>
+            <button id="find_bilt">Find Basic Income Tax Liability</button>
+        </div>
+
+
+        <div class="part">
+            <h3 class="center">Part 3: Net Income Tax Liability = Basic Income Tax Liability - Tax Offsets</h3>
+            <p class="center"><i>Tax offsets are rounded up to nearest dollar.</i></p>
+            <h5>3.1 Adding Non-Refundable Tax Offsets</h5>
+            <div class="field_wrapper nr-offset-wrapper">
+                <div>
+                    <input type="text" class="input_nr_offsets" name="field_name[]" id="input_income" value="0" />
+                    <a href="javascript:void(0);" class="add_button" title="Add field">+</a>
+                </div>
+            </div>
+            <button id="add_nr_offsets">Sum Non-Refundable Offsets</button>
+            <h5>3.2 Adding Refundable Tax Offsets</h5>
+            <div class="field_wrapper r-offset-wrapper">
+                <div>
+                    <input type="text" class="input_r_offsets" name="field_name[]" id="input_income" value="0" />
+                    <a href="javascript:void(0);" class="add_button" title="Add field">+</a>
+                </div>
+            </div>
+            <button id="add_r_offsets">Sum Refundable Offsets</button>
+            <h5>3.3 Finding Net Income Tax Liability</h5>
+            <div class="field_wrapper">
+                <div>
+                    <label>Basic Income Tax Liability:</label><br><input class="input_bilt_2" value="0" />
+                </div>
+                <div>
+                    <label>Non-Refundable Tax Offsets:</label><br><input class="input_nr_total" value="0" />
+                </div>
+                <div>
+                    <label>BITL - NRTO:</label><br><input class="input_le_result" value="0" />
+                </div>
+                <div>
+                    <label>Refundable Tax Offsets:</label><br><input class="input_r_total" value="0" />
+                </div>
+                <div>
+                    <label>Net Income Tax Liability</label><br><input class="input_nitl" value="0" />
+                </div>
+            </div>
+            <button id="find_nitl">Find Net Income Tax Liability</button>
+        </div>
+        
+        <div class="part">
+            <h3 class="center">Part 4: Amount Payable or Refundable = Net Income Tax Liability + Levies and Charges - Credits</h3>
+            <p class="center"><i>Medicare levies and levy charges truncated to 2 decimal places. Payable rounded down to nearest 5 cents. Refunds no rounding.</i></p>
+            <h5>4.1 Medicare Levy</h5>
+            <div class="field_wrapper">
+                <div>
+                    <label>Taxable Income:</label><br><input class="input_taxable_income_1" value="0" />
+                </div>
+                <div>
+                    <label for="medicare">Apply Medicare Levy?:</label>
+                    <br>
+                    <select name="medicare" id="medicare">
+                      <option value="yes">yes</option>
+                      <option value="no">no</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Medicare Levy:</label><br><input class="input_medicare_levy_1" value="0" />
+                </div>
+            </div>
+            <button id="get_medicare_levy">Calculate Medicare Levy</button>
+            <h5>4.2 Medicare Levy Surcharge</h5>
+            <div class="field_wrapper">
+                <p>idk how this works yet :3</p>
+            </div>
+            <h5>4.3 Adding Credits</h5>
+            <div class="field_wrapper credit-wrapper">
+                <div>
+                    <input type="text" class="input_credits" name="field_name[]" id="input_income" value="0" />
+                    <a href="javascript:void(0);" class="add_button" title="Add field">+</a>
+                </div>
+            </div>
+            <button id="add_credits">Sum Credits</button>
+            <div class="working">
+                <p id="1-1-label"></p>
+            </div>
+            <h5>4.4 Amount Payable or Refundable</h5>
+            <div class="field_wrapper">
+                <div>
+                    <label>Net Income Tax Liability:</label><br><input class="input_nitl_2" value="0" />
+                </div>
+                <div>
+                    <label>Medicare Levy:</label><br><input class="input_medicare_levy_2" value="0" />
+                </div>
+                <div>
+                    <label>Medicare Levy Surcharge:</label><br><input class="input_surcharge_2" value="0" />
+                </div>
+                <div>
+                    <label>Credits:</label><br><input class="input_credits_2" value="0" />
+                </div>
+                <div>
+                    <label>Amount Payable or Refundable</label><br><input class="input_final" value="0" />
+                </div>
+            </div>
+            <button id="final_amount">Find Amount Payable or Refundable</button>
+        </div>
+
+        <div class="part">
+            <h3 class="center">Output</h3>
+            <div class="working">
+                <p><b>Stage 1: Taxable Income = Assessable Income - Deductions</b></p>
+                <p id="p-assessable-income-front"></p>
+                <p id="p-assessable-income"></p>
+                <p id="p-assessable-income-result"></p>
+                <br>
+                <p id="p-deductions-front"></p>
+                <p id="p-deductions"></p>
+                <p id="p-deductions-result"></p>
+                <br>
+                <p id="p-stage-1-end-front"></p>
+                <p id="p-stage-1-end"></p>
+                <p id="p-stage-1-end-result"></p>
+                <br>
+                <p><b>Stage 2: Basic Income Tax Liability = Taxable Income * Tax Rates</b></p>
+                <p id="p-tax-bracket"></p>
+                <p id="p-bilt"></p>
+                <p id="p-bilt-result-1"></p>
+                <p id="p-bilt-result-2"></p>
+                <p id="p-bilt-result-3"></p>
+                <br>
+                <p><b>Stage 3: Net Income Tax Liability = Basic Income Tax Liability - Tax Offsets</b></p>
+                <p id="p-nro-front"></p>
+                <p id="p-nro"></p>
+                <p id="p-nro-result"></p>
+                <br>
+                <p id="p-ro-front"></p>
+                <p id="p-ro"></p>
+                <p id="p-ro-result"></p>
+                <br>
+                <p id="p-nro-sub-front"></p>
+                <p id="p-nro-sub"></p>
+                <p id="p-nro-sub-result"></p>
+                <br>
+                <p id="p-ro-sub-front"></p>
+                <p id="p-ro-sub"></p>
+                <p id="p-ro-sub-result"></p>
+                <br>
+                <p><b>Stage 4: Amount Payable or Refundable = Net Income Tax Liability + Levies and Charges - Credits</b></p>
+                <p id="p-medicare-levy-front"></p>
+                <p id="p-medicare-levy"></p>
+                <p id="p-medicare-levy-result"></p>
+                <br>
+                <p id="p-credits-front"></p>
+                <p id="p-credits"></p>
+                <p id="p-credits-result"></p>
+                <br>
+                <p id="p-final-front"></p>
+                <p id="p-final"></p>
+                <p id="p-final-result"></p>
+                <p id="p-final-explanation"></p>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var maxField = 8; //Input fields increment limitation
+            var addButton = $('.add_button'); //Add button selector
+            var wrapper = $('.assessable-income-wrapper'); //Input field wrapper
+            var fieldHTML = '<div><input type="text" class="input_income" name="field_name[]" value="0"/><a href="javascript:void(0);" class="remove_button">-</a></div>'; //New input field html 
+            var x = 1; //Initial field counter is 1
+            const wrappers = {
+                "input_income": {
+                    "wrapper": ".assessable-income-wrapper",
+                    "fieldHTML": '<div><input type="text" class="input_income" name="field_name[]" value="0"/><a href="javascript:void(0);" class="remove_button">-</a></div>',
+                    "x": 1
+                },
+                "input_deductions": {
+                    "wrapper": ".deductions-wrapper",
+                    "fieldHTML": '<div><input type="text" class="input_deductions" name="field_name[]" value="0"/><a href="javascript:void(0);" class="remove_button">-</a></div>',
+                    "x": 1
+                },
+                "input_nr_offsets": {
+                    "wrapper": ".nr-offset-wrapper",
+                    "fieldHTML": '<div><input type="text" class="input_nr_offsets" name="field_name[]" value="0"/><a href="javascript:void(0);" class="remove_button">-</a></div>',
+                    "x": 1
+                },
+                "input_r_offsets": {
+                    "wrapper": ".r-offset-wrapper",
+                    "fieldHTML": '<div><input type="text" class="input_r_offsets" name="field_name[]" value="0"/><a href="javascript:void(0);" class="remove_button">-</a></div>',
+                    "x": 1
+                },
+                "input_credits": {
+                    "wrapper": ".credit-wrapper",
+                    "fieldHTML": '<div><input type="text" class="input_credits" name="field_name[]" value="0"/><a href="javascript:void(0);" class="remove_button">-</a></div>',
+                    "x": 1
+                },
+            }
+
+            //Once add button is clicked
+            $(addButton).click(function () {
+                var key = $(this).prev().attr('class')
+                var wrapper = wrappers[key]["wrapper"]
+                var fieldHTML = wrappers[key]["fieldHTML"]
+                var x = wrappers[key]["x"]
+
+                //Check maximum number of input fields
+                if (x < maxField) {
+                    x++; //Increment field counter
+                    $(wrapper).append(fieldHTML); //Add field html
+                }
+            });
+
+            //Once remove button is clicked
+            $(".field_wrapper").on('click', '.remove_button', function (e) {
+                e.preventDefault();
+                $(this).parent('div').remove(); //Remove field html
+                x--; //Decrement field counter
+            });
+        });
+    </script>
+
+    <script>
+        // Restricts input for the given textbox to the given inputFilter.
+        function setInputFilter(textbox, inputFilter) {
+            ["input", "keydown", "keyup", "mousedown", "mouseup", "select", "contextmenu", "drop"].forEach(function (event) {
+                textbox.addEventListener(event, function () {
+                    if (inputFilter(this.value)) {
+                        this.oldValue = this.value;
+                        this.oldSelectionStart = this.selectionStart;
+                        this.oldSelectionEnd = this.selectionEnd;
+                    } else if (this.hasOwnProperty("oldValue")) {
+                        this.value = this.oldValue;
+                        this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);
+                    } else {
+                        this.value = "";
+                    }
+                });
+            });
+        }
+    
+        setInputFilter(document.getElementById("input_income"), function (value) {
+            return /^-?\d*[.,]?\d{0,2}$/.test(value) && (value === "" || parseInt(value) <= 100000000);
+        });
+    </script>
+
+    <script>
+
+        const taxbrackets = {
+            "australian": [
+            {
+                "min": 0,
+                "max": 18200,
+                "prev": 0,
+                "flat": 0,
+                "percentage": 0
+            },
+            {
+                "min": 18201,
+                "max": 45000,
+                "prev": 18200,
+                "flat": 0,
+                "percentage": 0.19
+            },
+            {
+                "min": 45001,
+                "max": 120000,
+                "prev": 45000,
+                "flat": 5092,
+                "percentage": 0.325
+            },
+            {
+                "min": 120001,
+                "max": 180000,
+                "prev": 120000,
+                "flat": 29467,
+                "percentage": 0.37
+            },
+            {
+                "min": 180001,
+                "max": 99999999,
+                "prev": 180000,
+                "flat": 51667,
+                "percentage": 0.45
+            }],
+            "foreign": [
+            {
+                "min": 0,
+                "max": 120000,
+                "prev": 0,
+                "flat": 0,
+                "percentage": 0.325
+            },
+            {
+                "min": 120001,
+                "max": 180000,
+                "prev": 120000,
+                "flat": 39000,
+                "percentage": 0.37
+            },
+            {
+                "min": 180001,
+                "max": 99999999,
+                "prev": 180000,
+                "flat": 61200,
+                "percentage": 0.45
+            }]
+        }
+
+        function sum_array(inputs) {
+            var running_total = 0
+            var working_str = ""
+            for(var i = 0; i < inputs.length; i++){
+                console.log($(inputs[i]).val());
+                running_total += parseFloat($(inputs[i]).val())
+                working_str += "$" + $(inputs[i]).val() + " + "
+            }
+            working_str = working_str.slice(0, -3)
+            return_obj = {
+                "running_total": running_total,
+                "working_str": working_str
+            }
+            return return_obj
+        }
+
+        function toFixed(num, fixed) {
+            var re = new RegExp('^-?\\d+(?:\.\\d{0,' + (fixed || -1) + '})?');
+            return num.toString().match(re)[0];
+        }
+        
+        $( "#add_taxable_income" ).click(function() {
+            var inputs = $(".input_income");
+            var return_obj = sum_array(inputs);
+            var result = return_obj.running_total;
+            var working = return_obj.working_str;
+
+            income_total = Math.trunc(result);
+            $("#p-assessable-income-front").text("Sum sources of assessable income.")
+            $("#p-assessable-income").text(working);
+            $("#p-assessable-income-result").text("= $" + income_total + " (truncated)");
+            $(".input_sum_income").val(income_total);
+        });
+
+        $( "#add_deductions" ).click(function() {
+            var inputs = $(".input_deductions");
+            var return_obj = sum_array(inputs);
+            var result = return_obj.running_total;
+            var working = return_obj.working_str;
+
+            deductions_total = Math.trunc(result);
+            $("#p-deductions-front").text("Sum allowable deductions.")
+            $("#p-deductions").text(working);
+            $("#p-deductions-result").text("= $" + deductions_total + " (truncated)");
+            $(".input_sum_deductions").val(deductions_total);
+        });
+
+        $( "#find_taxable_income" ).click(function() {
+            var assessable_income = parseFloat($(".input_sum_income").val());
+            var deductions = parseFloat($(".input_sum_deductions").val());
+            var taxable_income = assessable_income - deductions;
+            $('#p-stage-1-end').text("$" + assessable_income + " - $" + deductions);
+            $('#p-stage-1-end-result').text("= $" + taxable_income);
+            $('#p-stage-1-end-front').text("Now the Taxable Income can be calculated:");
+            $('.input_taxable_income').val(taxable_income);
+            $('.input_taxable_income_1').val(taxable_income);
+        });
+
+        $( "#find_bilt" ).click(function() {
+            var residency = $("#residency").val()
+            var taxable_income = parseFloat($(".input_taxable_income").val())
+            var this_bracket = taxbrackets[residency]
+            for(var i = 0; i < this_bracket.length; i++){
+                if (taxable_income >= this_bracket[i]['min'] && taxable_income <= this_bracket[i]['max']) {
+                    var this_bracket = this_bracket[i];
+                    break;
+                }
+            }
+            var bilt = this_bracket['flat'] + (this_bracket['percentage'] * (taxable_income - this_bracket['prev']));
+            $('.input_bilt_1').val(bilt);
+            $('.input_bilt_2').val(bilt);
+
+            // Working out
+            var bracket_str = "This person is ";
+            if (residency == "australian") {
+                bracket_str += "an Australian";
+            } else {
+                bracket_str += "a foreign";
+            }
+            bracket_str += " resident in the $" + this_bracket['min'] + " - $" + this_bracket['max'] + " tax bracket.";
+            $("#p-tax-bracket").text(bracket_str);
+            $("#p-bilt").text("$" + this_bracket['flat'] + " + " + this_bracket['percentage'] + "($" + taxable_income + " - $" + this_bracket['prev'] + ")");
+            $("#p-bilt-result-1").text("= $" + this_bracket['flat'] + " + " + this_bracket['percentage'] + "($" + (taxable_income - this_bracket['prev']) + ")");
+            $("#p-bilt-result-2").text("= $" + this_bracket['flat'] + " + $" + this_bracket['percentage'] * (taxable_income + this_bracket['prev']));
+            $("#p-bilt-result-3").text("= $" + bilt);
+        });
+
+        $( "#add_nr_offsets ").click(function() {
+            var inputs = $(".input_deductions");
+            var return_obj = sum_array(inputs);
+            var result = return_obj.running_total;
+            var working = return_obj.working_str;
+
+            deductions_total = Math.trunc(result);
+            $("#p-deductions").text(working);
+            $("#p-deductions-result").text("= $" + deductions_total + " (truncated)");
+            $(".input_sum_deductions").val(deductions_total);
+
+
+            var inputs = $(".input_nr_offsets");
+            var return_obj = sum_array(inputs);
+            var income_total = Math.ceil(return_obj.running_total);
+            $(".input_nr_total").val(income_total);
+
+            var working = return_obj.working_str;
+            $("#p-nro-front").text("Sum non-refundable tax offsets, rounded up to nearest dollar.");
+            $("#p-nro").text(working);
+            $("#p-nro-result").text("= $" + income_total);
+        });
+
+        $( "#add_r_offsets ").click(function() {
+            var inputs = $(".input_deductions");
+            var return_obj = sum_array(inputs);
+            var result = return_obj.running_total;
+            var working = return_obj.working_str;
+
+            deductions_total = Math.trunc(result);
+            $("#p-deductions").text(working);
+            $("#p-deductions-result").text("= $" + deductions_total + " (truncated)");
+            $(".input_sum_deductions").val(deductions_total);
+
+
+            var inputs = $(".input_r_offsets");
+            var return_obj = sum_array(inputs);
+            var income_total = Math.ceil(return_obj.running_total);
+            $(".input_r_total").val(income_total);
+
+            var working = return_obj.working_str;
+            $("#p-ro-front").text("Sum refundable tax offsets, rounded up to nearest dollar.");
+            $("#p-ro").text(working);
+            $("#p-ro-result").text("= $" + income_total);
+        });
+
+        $( "#find_nitl ").click(function() {
+            // Step 1
+            var bitl = parseFloat($('.input_bilt_2').val());
+            var nrto = parseFloat($(".input_nr_total").val());
+            if (bitl-nrto < 0) {
+                var result = 0
+            } else {
+                var result = bitl - nrto
+            }
+            $(".input_le_result").val(result);
+            $("#p-nro-sub-front").text("Subtract non-refundable tax offsets first, with the result not going below 0.");
+            $("#p-nro-sub").text("$" + bitl + " - $" + nrto);
+            $("#p-nro-sub-result").text("= $" + result);
+
+            // Step 2
+            var le_result = parseFloat($(".input_le_result").val());
+            var rto = parseFloat($(".input_r_total").val());
+            $(".input_nitl").val(le_result-rto)
+            $(".input_nitl_2").val(le_result-rto)
+            $("#p-ro-sub-front").text("Then subtract refundable tax offsets from that result, which can go into the negatives.");
+            $("#p-ro-sub").text("$" + le_result + " - $" + rto);
+            $("#p-ro-sub-result").text("= $" + (le_result - rto));
+        });
+
+        $( "#get_medicare_levy ").click(function() {
+            var levy = $('#medicare').val();
+            var taxable_income = parseFloat($(".input_taxable_income_1").val());
+            if (levy == "yes") {
+                var medicare_levy = 0.02 * taxable_income;
+                medicare_levy = toFixed(medicare_levy, 2);
+                $('.input_medicare_levy_1').val(medicare_levy);
+                $('.input_medicare_levy_2').val(medicare_levy);
+
+                $('#p-medicare-levy-front').text("Calculate the 0.2% Medicare Levy (truncated to 2 decimal places).");
+                $('#p-medicare-levy').text("0.02 * $" + taxable_income);
+                $('#p-medicare-levy-result').text("= $" + medicare_levy);
+            }
+        });
+
+        
+        $( "#add_credits ").click(function() {
+            var inputs = $(".input_credits");
+            var return_obj = sum_array(inputs)
+            income_total = Math.trunc(return_obj.running_total);
+            $(".input_credits_2").val(income_total);
+
+            var working = return_obj.working_str;
+            $("#p-credits-front").text("Sum credits.");
+            $("#p-credits").text(working);
+            $('#p-credits-result').text("= $" + income_total)
+        });
+
+        $( "#final_amount ").click(function() {
+            var nitl = parseFloat($(".input_nitl_2").val());
+            var mlevy = parseFloat($(".input_medicare_levy_2").val());
+            var mlevysurcharge = parseFloat($(".input_surcharge_2").val());
+            var credits = parseFloat($(".input_credits_2").val());
+
+            var final = ((nitl * 100) + (mlevy * 100) - (credits * 100))/100;
+            if (final > 0) {
+                final = (Math.floor(final*20)/20).toFixed(2);
+                $("#p-final-explanation").text("This person has $" + final + " payable.")
+            } else {
+                $("#p-final-explanation").text("This person has $" + (-final) + " refundable.")
+            }
+            $('.input_final').val(final);
+
+            $("#p-final-front").text("Finally, find amount payable or refundable by taking net income tax liability, adding levies and charges, and subtracting credits.");
+            $("#p-final").text("$" + nitl + " + $" + mlevy + " - $" + credits);
+            $("#p-final-result").text("= $" + final);
+        });
+    </script>
+</body>
+
+</html>
