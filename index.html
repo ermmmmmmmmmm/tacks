@@ -5,6 +5,10 @@
 <head>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <style>
+        a {
+            text-decoration: none;
+        }
+
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
             color: #444444;
@@ -34,6 +38,7 @@
             grid-auto-rows: auto;
             border: 1px solid;
             padding: 10px;
+            align-items: end;
         }
 
         .field_wrapper > div {
@@ -57,6 +62,12 @@
                 width: 70%;
             }
         }
+
+        @media only screen and (max-width: 1218px) {
+            .field_wrapper {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
     </style>
 </head>
 
@@ -69,26 +80,27 @@
             <h5>1.1 Adding Assessable Income</h5>
             <div class="field_wrapper assessable-income-wrapper">
                 <div>
-                    <input type="text" class="input_income" name="field_name[]" id="input_income" value="0" />
-                    <a href="javascript:void(0);" class="add_button" title="Add field">+</a>
+                    <input type="text" class="input_income" name="field_name[]" id="input_income" value="0" /><a href="javascript:void(0);" class="add_button" title="Add field">+</a>
                 </div>
             </div>
             <button id="add_taxable_income">Sum Assessable Income</button>
             <h5>1.2 Adding Deductions</h5>
             <div class="field_wrapper deductions-wrapper">
                 <div>
-                    <input type="text" class="input_deductions" name="field_name[]" id="input_income" value="0" />
-                    <a href="javascript:void(0);" class="add_button" title="Add field">+</a>
+                    <input type="text" class="input_deductions" name="field_name[]" id="input_income" value="0" /><a href="javascript:void(0);" class="add_button" title="Add field">+</a>
                 </div>
             </div>
             <button id="add_deductions">Sum Deductions</button>
             <h5>1.3 Taxable Income</h5>
             <div class="field_wrapper">
                 <div>
-                    <input type="text" class="input_sum_income" name="field_name[]" id="input_income" value="0" />
+                    <label>Assessable Income:</label><br><input type="text" class="input_sum_income" name="field_name[]" id="input_income" value="0" />
                 </div>
                 <div>
-                    <input type="text" class="input_sum_deductions" name="field_name[]" id="input_income" value="0" />
+                    <label>Deductions:</label><br><input type="text" class="input_sum_deductions" name="field_name[]" id="input_income" value="0" />
+                </div>
+                <div>
+                    <label>Taxable Income:</label><br><input type="text" class="input_taxable_income_0" name="field_name[]" id="input_income" value="0" />
                 </div>
             </div>
             <button id="find_taxable_income">Find Taxable Income</button>
@@ -473,6 +485,7 @@
             $('#p-stage-1-end-front').text("Now the Taxable Income can be calculated:");
             $('.input_taxable_income').val(taxable_income);
             $('.input_taxable_income_1').val(taxable_income);
+            $('.input_taxable_income_0').val(taxable_income);
         });
 
         $( "#find_bilt" ).click(function() {
