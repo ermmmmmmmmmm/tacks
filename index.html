@@ -605,9 +605,8 @@
         
         $( "#add_credits ").click(function() {
             var inputs = $(".input_credits");
-            var return_obj = sum_array(inputs)
-            income_total = Math.trunc(return_obj.running_total);
-            $(".input_credits_2").val(income_total);
+            var return_obj = sum_array(inputs);
+            $(".input_credits_2").val(return_obj.running_total);
 
             var working = return_obj.working_str;
             $("#p-credits-front").text("Sum credits.");
