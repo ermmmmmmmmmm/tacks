@@ -445,6 +445,23 @@
             return return_obj
         }
 
+        function sum_array_truncate_each(inputs) {
+            var running_total = 0
+            var working_str = ""
+            for(var i = 0; i < inputs.length; i++){
+                console.log($(inputs[i]).val());
+                var le_value = parseFloat(Math.trunc($(inputs[i]).val()));
+                running_total += le_value;
+                working_str += "$" + le_value + " + "
+            }
+            working_str = working_str.slice(0, -3)
+            return_obj = {
+                "running_total": running_total,
+                "working_str": working_str
+            }
+            return return_obj
+        }
+
         function toFixed(num, fixed) {
             var re = new RegExp('^-?\\d+(?:\.\\d{0,' + (fixed || -1) + '})?');
             return num.toString().match(re)[0];
@@ -452,7 +469,7 @@
         
         $( "#add_taxable_income" ).click(function() {
             var inputs = $(".input_income");
-            var return_obj = sum_array(inputs);
+            var return_obj = sum_array_truncate_each(inputs);
             var result = return_obj.running_total;
             var working = return_obj.working_str;
 
@@ -465,7 +482,7 @@
 
         $( "#add_deductions" ).click(function() {
             var inputs = $(".input_deductions");
-            var return_obj = sum_array(inputs);
+            var return_obj = sum_array_truncate_each(inputs);
             var result = return_obj.running_total;
             var working = return_obj.working_str;
 
