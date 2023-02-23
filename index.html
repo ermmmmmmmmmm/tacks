@@ -527,7 +527,7 @@
             $("#p-tax-bracket").text(bracket_str);
             $("#p-bilt").text("$" + this_bracket['flat'] + " + " + this_bracket['percentage'] + "($" + taxable_income + " - $" + this_bracket['prev'] + ")");
             $("#p-bilt-result-1").text("= $" + this_bracket['flat'] + " + " + this_bracket['percentage'] + "($" + (taxable_income - this_bracket['prev']) + ")");
-            $("#p-bilt-result-2").text("= $" + this_bracket['flat'] + " + $" + this_bracket['percentage'] * (taxable_income + this_bracket['prev']));
+            $("#p-bilt-result-2").text("= $" + this_bracket['flat'] + " + $" + this_bracket['percentage'] * (taxable_income - this_bracket['prev']));
             $("#p-bilt-result-3").text("= $" + bilt);
         });
 
